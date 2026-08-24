@@ -32,9 +32,11 @@ QColor MarkerGenerator::colorAt(const Params &params, int index, int total)
     if (params.colorMode == FixedColor)
         return params.color;
 
-    // Ramp hue across the whole grid. Saturation and lightness match the values
-    // the MATLAB tool used, which read well against the timeline background.
-    const double hue = (total > 1) ? double(index) / double(total - 1) : 0.0;
+    // Ramp hue across the grid. Divide by the count, not by count - 1: hue is
+    // circular, so ending on 1.0 would wrap to the same red the ramp started
+    // from and the first and last markers would be indistinguishable.
+    // Saturation and lightness read well against the timeline background.
+    const double hue = (total > 0) ? double(index) / double(total) : 0.0;
     return QColor::fromHslF(std::clamp(hue, 0.0, 1.0), 0.7, 0.75);
 }
 
