@@ -43,3 +43,21 @@ add_executable(test_midi_source
 target_include_directories(test_midi_source PRIVATE ${CMAKE_SOURCE_DIR}/src)
 target_link_libraries(test_midi_source PRIVATE Qt6::Core Qt6::Test)
 add_test(NAME midi_source COMMAND test_midi_source)
+
+add_executable(test_pattern
+  test_pattern.cpp
+  ${CMAKE_SOURCE_DIR}/src/rhythm/pattern.cpp
+)
+target_include_directories(test_pattern PRIVATE ${CMAKE_SOURCE_DIR}/src)
+target_link_libraries(test_pattern PRIVATE Qt6::Core Qt6::Test PkgConfig::mlt++)
+add_test(NAME pattern COMMAND test_pattern)
+
+add_executable(test_rhythm_source
+  test_rhythm_source.cpp
+  ${CMAKE_SOURCE_DIR}/src/rhythm/beatgrid.cpp
+  ${CMAKE_SOURCE_DIR}/src/rhythm/midisource.cpp
+  ${CMAKE_SOURCE_DIR}/src/rhythm/rhythmsource.cpp
+)
+target_include_directories(test_rhythm_source PRIVATE ${CMAKE_SOURCE_DIR}/src)
+target_link_libraries(test_rhythm_source PRIVATE Qt6::Core Qt6::Test)
+add_test(NAME rhythm_source COMMAND test_rhythm_source)

@@ -143,6 +143,8 @@ add_executable(shotcut WIN32 MACOSX_BUNDLE
   rhythm/beatgrid.cpp rhythm/beatgrid.h
   rhythm/markergenerator.cpp rhythm/markergenerator.h
   rhythm/midisource.cpp rhythm/midisource.h
+  rhythm/pattern.cpp rhythm/pattern.h
+  rhythm/rhythmsource.cpp rhythm/rhythmsource.h
   screencapture/rectangleselector.cpp
   screencapture/rectangleselector.h
   screencapture/screencapture.cpp
