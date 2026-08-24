@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Meltytech, LLC
+ * Copyright (c) 2021-2026 Meltytech, LLC
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -82,6 +82,20 @@ public:
 private:
     MarkersModel &m_model;
     QList<Marker> m_clearMarkers;
+};
+
+class ReplaceCommand : public QUndoCommand
+{
+public:
+    ReplaceCommand(MarkersModel &model, const QList<Marker> &newMarkers, const QString &description);
+    void redo();
+    void undo();
+
+private:
+    MarkersModel &m_model;
+    QList<Marker> m_newMarkers;
+    QList<Marker> m_oldMarkers;
+    bool m_captured;
 };
 
 } // namespace Markers

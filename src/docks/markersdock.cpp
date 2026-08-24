@@ -20,13 +20,18 @@
 #include "Logger.h"
 #include "actions.h"
 #include "mainwindow.h"
+#include "commands/markercommands.h"
+#include "dialogs/beatmarkersdialog.h"
+#include "mltcontroller.h"
 #include "models/markersmodel.h"
+#include "rhythm/markergenerator.h"
 #include "settings.h"
 #include "util.h"
 #include "widgets/docktoolbar.h"
 #include "widgets/editmarkerwidget.h"
 
 #include <QAction>
+#include <QUndoStack>
 #include <QDebug>
 #include <QHBoxLayout>
 #include <QHeaderView>
@@ -42,6 +47,7 @@
 #include <QTreeView>
 #include <QVBoxLayout>
 #include <QtWidgets/QScrollArea>
+#include <algorithm>
 
 class ColorItemDelegate : public QStyledItemDelegate
 {
@@ -163,6 +169,9 @@ MarkersDock::MarkersDock(QWidget *parent)
     mainMenu->addAction(Actions["timelineMarkSelectedClipAction"]);
     mainMenu->addAction(Actions["timelineCycleMarkerColorAction"]);
     mainMenu->addAction(tr("Remove All Markers"), this, SLOT(onRemoveAllRequested()));
+    mainMenu->addAction(tr("Generate on Beat Grid..."),
+                        this,
+                        SLOT(onGenerateBeatMarkersRequested()));
     QAction *action;
     QMenu *columnsMenu = new QMenu(tr("Columns"), this);
     action = columnsMenu->addAction(tr("Color"), this, SLOT(onColorColumnToggled(bool)));
@@ -351,6 +360,45 @@ void MarkersDock::onClearSelectionRequested()
 void MarkersDock::onRemoveAllRequested()
 {
     m_model->clear();
+}
+
+void MarkersDock::onGenerateBeatMarkersRequested()
+{
+    if (!m_model) {
+        LOG_ERROR() << "No markers model";
+        return;
+    }
+    Mlt::Producer *multitrack = MAIN.multitrack();
+    if (!multitrack || !multitrack->is_valid()) {
+        LOG_ERROR() << "No timeline";
+        return;
+    }
+
+    BeatMarkersDialog dialog(multitrack->get_length(), MLT.profile().fps(), this);
+    if (dialog.exec() != QDialog::Accepted)
+        return;
+
+    QList<Markers::Marker> generated = MarkerGenerator::generate(dialog.params());
+    if (generated.isEmpty())
+        return;
+
+    QList<Markers::Marker> markers;
+    QString description;
+    if (dialog.replaceExisting()) {
+        markers = generated;
+        description = tr("Generate markers on a beat grid");
+    } else {
+        // MarkersModel stores markers in list order, so merge and re-sort.
+        markers = m_model->getMarkers();
+        markers.append(generated);
+        std::sort(markers.begin(),
+                  markers.end(),
+                  [](const Markers::Marker &a, const Markers::Marker &b) {
+                      return a.start < b.start;
+                  });
+        description = tr("Add markers on a beat grid");
+    }
+    MAIN.undoStack()->push(new Markers::ReplaceCommand(*m_model, markers, description));
 }
 
 void MarkersDock::onSearchChanged()

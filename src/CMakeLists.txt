@@ -22,6 +22,7 @@ add_executable(shotcut WIN32 MACOSX_BUNDLE
   dialogs/alignmentarray.cpp dialogs/alignmentarray.h
   dialogs/addonfiltersdialog.cpp dialogs/addonfiltersdialog.h
   dialogs/addonmetadatahelpdialog.cpp dialogs/addonmetadatahelpdialog.h
+  dialogs/beatmarkersdialog.cpp dialogs/beatmarkersdialog.h
   dialogs/bitratedialog.h dialogs/bitratedialog.cpp
   dialogs/customprofiledialog.cpp dialogs/customprofiledialog.h
   dialogs/customprofiledialog.ui
@@ -139,6 +140,9 @@ add_executable(shotcut WIN32 MACOSX_BUNDLE
   sharedframe.cpp sharedframe.h
   shotcut_mlt_properties.h
   transcoder.cpp transcoder.h
+  rhythm/beatgrid.cpp rhythm/beatgrid.h
+  rhythm/markergenerator.cpp rhythm/markergenerator.h
+  rhythm/midisource.cpp rhythm/midisource.h
   screencapture/rectangleselector.cpp
   screencapture/rectangleselector.h
   screencapture/screencapture.cpp
