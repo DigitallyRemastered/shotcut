@@ -64,6 +64,7 @@ add_executable(shotcut WIN32 MACOSX_BUNDLE
   docks/playlistdock.ui
   docks/recentdock.cpp docks/recentdock.h
   docks/recentdock.ui
+  docks/rhythmdock.cpp docks/rhythmdock.h
   docks/scopedock.cpp docks/scopedock.h
   docks/subtitlesdock.cpp docks/subtitlesdock.h
   docks/timelinedock.cpp docks/timelinedock.h
