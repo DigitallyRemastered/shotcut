@@ -18,6 +18,7 @@
 #include "rhythm/beatgrid.h"
 #include "rhythm/markergenerator.h"
 
+#include <QSet>
 #include <QtTest>
 
 class TestMarkerGenerator : public QObject
@@ -90,8 +91,14 @@ private slots:
         params.colorMode = MarkerGenerator::RainbowHue;
         const auto markers = MarkerGenerator::generate(params);
         QVERIFY(markers.size() > 2);
-        QVERIFY(markers.first().color.isValid());
-        QVERIFY(markers.last().color.isValid());
+        // Hue is circular, so a ramp that ends on 1.0 wraps back to its own
+        // starting red. Every marker must be a different colour.
+        QSet<QRgb> seen;
+        for (const auto &marker : markers) {
+            QVERIFY(marker.color.isValid());
+            seen.insert(marker.color.rgb());
+        }
+        QCOMPARE(seen.size(), markers.size());
         QVERIFY(markers.first().color != markers.last().color);
     }
 
