@@ -17,48 +17,14 @@
 
 #include "markergenerator.h"
 
+#include "rhythm/beatgrid.h"
+
 #include <QObject>
-#include <cmath>
-
-namespace {
-
-// Guard against parameters that cannot describe a grid at all.
-bool isUsable(const MarkerGenerator::Params &p)
-{
-    return p.bpm > 0.0 && p.fps > 0.0 && p.lengthFrames > 0 && p.everyNthBeat > 0;
-}
-
-// Frame number of the nth generated marker. Beats are converted to frames only
-// here, so rounding happens exactly once per marker.
-int frameForIndex(const MarkerGenerator::Params &p, int index)
-{
-    const double beat = p.offsetBeats + double(index) * double(p.everyNthBeat);
-    const double seconds = beat * 60.0 / p.bpm;
-    return int(std::llround(seconds * p.fps));
-}
-
-} // namespace
+#include <algorithm>
 
 int MarkerGenerator::count(const Params &params)
 {
-    if (!isUsable(params))
-        return 0;
-
-    // Solve for the first index whose frame lands at or past the end, rather
-    // than looping, so a silly bpm cannot spin here.
-    const double framesPerStep = (60.0 / params.bpm) * params.fps * double(params.everyNthBeat);
-    if (framesPerStep <= 0.0)
-        return 0;
-    const double firstFrame = (params.offsetBeats * 60.0 / params.bpm) * params.fps;
-    if (firstFrame >= double(params.lengthFrames))
-        return 0;
-    const double span = double(params.lengthFrames) - firstFrame;
-    int n = int(std::ceil(span / framesPerStep));
-
-    // Rounding in frameForIndex can put the last one a frame over; trim it.
-    while (n > 0 && frameForIndex(params, n - 1) >= params.lengthFrames)
-        --n;
-    return n < 0 ? 0 : n;
+    return BeatGrid::count(params.grid);
 }
 
 QColor MarkerGenerator::colorAt(const Params &params, int index, int total)
@@ -75,15 +41,14 @@ QColor MarkerGenerator::colorAt(const Params &params, int index, int total)
 QList<Markers::Marker> MarkerGenerator::generate(const Params &params)
 {
     QList<Markers::Marker> markers;
-    const int total = count(params);
+    const QVector<int> positions = BeatGrid::frames(params.grid);
+    const int total = positions.size();
     if (total <= 0)
         return markers;
 
     markers.reserve(total);
     for (int i = 0; i < total; i++) {
-        const int frame = frameForIndex(params, i);
-        if (frame < 0 || frame >= params.lengthFrames)
-            continue;
+        const int frame = positions.at(i);
         Markers::Marker marker;
         marker.text = QStringLiteral("%1 %2").arg(params.textPrefix).arg(i + 1);
         marker.start = frame;

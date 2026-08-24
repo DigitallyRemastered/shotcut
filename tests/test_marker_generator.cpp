@@ -15,6 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "rhythm/beatgrid.h"
 #include "rhythm/markergenerator.h"
 
 #include <QtTest>
@@ -28,54 +29,25 @@ private:
         double bpm, double offsetBeats, int lengthFrames, double fps, int everyNthBeat = 1)
     {
         MarkerGenerator::Params p;
-        p.bpm = bpm;
-        p.offsetBeats = offsetBeats;
-        p.lengthFrames = lengthFrames;
-        p.fps = fps;
-        p.everyNthBeat = everyNthBeat;
+        p.grid.bpm = bpm;
+        p.grid.offsetBeats = offsetBeats;
+        p.grid.lengthFrames = lengthFrames;
+        p.grid.fps = fps;
+        p.grid.everyNthBeat = everyNthBeat;
         return p;
     }
 
 private slots:
-    void gridIsEvenlySpaced_data()
+    void gridPositionsFeedThroughToMarkers()
     {
-        QTest::addColumn<double>("bpm");
-        QTest::addColumn<double>("offset");
-        QTest::addColumn<int>("length");
-        QTest::addColumn<double>("fps");
-        QTest::addColumn<int>("everyNth");
-        QTest::addColumn<int>("expectedCount");
-        QTest::addColumn<int>("expectedFirst");
-        QTest::addColumn<int>("expectedLast");
-
-        // 120 BPM at 25 fps is 12.5 frames per beat, so frames alternate
-        // between exact and half values and must round consistently.
-        QTest::newRow("120bpm 25fps") << 120.0 << 0.0 << 250 << 25.0 << 1 << 20 << 0 << 238;
-        QTest::newRow("60bpm 30fps exact") << 60.0 << 0.0 << 300 << 30.0 << 1 << 10 << 0 << 270;
-        QTest::newRow("bars in 4/4") << 120.0 << 0.0 << 250 << 25.0 << 4 << 5 << 0 << 200;
-        QTest::newRow("fractional offset") << 120.0 << 0.5 << 250 << 25.0 << 1 << 20 << 6 << 244;
-        QTest::newRow("ntsc 128bpm") << 128.0 << 0.0 << 1800 << 29.97 << 1 << 129 << 0 << 1798;
-        QTest::newRow("single frame") << 120.0 << 0.0 << 1 << 25.0 << 1 << 1 << 0 << 0;
-    }
-
-    void gridIsEvenlySpaced()
-    {
-        QFETCH(double, bpm);
-        QFETCH(double, offset);
-        QFETCH(int, length);
-        QFETCH(double, fps);
-        QFETCH(int, everyNth);
-        QFETCH(int, expectedCount);
-        QFETCH(int, expectedFirst);
-        QFETCH(int, expectedLast);
-
-        const auto params = make(bpm, offset, length, fps, everyNth);
+        // BeatGrid is covered in its own test; here we only check the markers
+        // land on exactly the frames it reports.
+        const auto params = make(120.0, 0.0, 250, 25.0);
+        const auto frames = BeatGrid::frames(params.grid);
         const auto markers = MarkerGenerator::generate(params);
-
-        QCOMPARE(MarkerGenerator::count(params), expectedCount);
-        QCOMPARE(markers.size(), expectedCount);
-        QCOMPARE(markers.first().start, expectedFirst);
-        QCOMPARE(markers.last().start, expectedLast);
+        QCOMPARE(markers.size(), frames.size());
+        for (int i = 0; i < markers.size(); i++)
+            QCOMPARE(markers.at(i).start, frames.at(i));
     }
 
     void markersStayInRangeAndAscend()
@@ -85,7 +57,7 @@ private slots:
         QVERIFY(!markers.isEmpty());
         for (int i = 0; i < markers.size(); i++) {
             QVERIFY(markers.at(i).start >= 0);
-            QVERIFY(markers.at(i).start < params.lengthFrames);
+            QVERIFY(markers.at(i).start < params.grid.lengthFrames);
             // Point markers, not ranges.
             QCOMPARE(markers.at(i).start, markers.at(i).end);
             if (i > 0)

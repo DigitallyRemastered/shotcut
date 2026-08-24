@@ -19,6 +19,7 @@
 #define MARKERGENERATOR_H
 
 #include "models/markersmodel.h"
+#include "rhythm/beatgrid.h"
 
 #include <QColor>
 #include <QList>
@@ -40,11 +41,7 @@ public:
 
     struct Params
     {
-        double bpm{120.0};        //!< Beats per minute. Must be > 0.
-        double offsetBeats{0.0};  //!< Grid start, in beats. May be fractional.
-        int lengthFrames{0};      //!< Exclusive upper bound for marker frames.
-        double fps{25.0};         //!< Timeline frame rate. Must be > 0.
-        int everyNthBeat{1};      //!< 1 = every beat, 4 = every bar in 4/4.
+        BeatGrid::Params grid;    //!< Where the markers land.
         ColorMode colorMode{RainbowHue};
         QColor color{Qt::red};    //!< Used when colorMode == FixedColor.
         QString textPrefix{QStringLiteral("Beat")};

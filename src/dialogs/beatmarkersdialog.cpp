@@ -142,11 +142,11 @@ void BeatMarkersDialog::onValuesChanged()
 MarkerGenerator::Params BeatMarkersDialog::params() const
 {
     MarkerGenerator::Params p;
-    p.bpm = m_bpm->value();
-    p.offsetBeats = m_offset->value();
-    p.everyNthBeat = m_everyNth->value();
-    p.lengthFrames = m_lengthFrames;
-    p.fps = m_fps;
+    p.grid.bpm = m_bpm->value();
+    p.grid.offsetBeats = m_offset->value();
+    p.grid.everyNthBeat = m_everyNth->value();
+    p.grid.lengthFrames = m_lengthFrames;
+    p.grid.fps = m_fps;
     p.colorMode = MarkerGenerator::ColorMode(m_colorMode->currentData().toInt());
     p.color = m_color;
     p.textPrefix = m_prefix->text();
