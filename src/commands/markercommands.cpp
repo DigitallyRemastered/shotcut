@@ -125,4 +125,31 @@ void ClearCommand::undo()
     m_model.doReplace(m_clearMarkers);
 }
 
+ReplaceCommand::ReplaceCommand(MarkersModel &model,
+                               const QList<Marker> &newMarkers,
+                               const QString &description)
+    : QUndoCommand(0)
+    , m_model(model)
+    , m_newMarkers(newMarkers)
+    , m_captured(false)
+{
+    setText(description);
+}
+
+void ReplaceCommand::redo()
+{
+    // Capture on first redo rather than in the constructor so the command can
+    // be built before the caller decides to push it.
+    if (!m_captured) {
+        m_oldMarkers = m_model.getMarkers();
+        m_captured = true;
+    }
+    m_model.doReplace(m_newMarkers);
+}
+
+void ReplaceCommand::undo()
+{
+    m_model.doReplace(m_oldMarkers);
+}
+
 } // namespace Markers

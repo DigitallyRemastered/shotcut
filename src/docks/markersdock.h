@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Meltytech, LLC
+ * Copyright (c) 2021-2026 Meltytech, LLC
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -52,6 +52,7 @@ private slots:
     void onRemoveRequested();
     void onClearSelectionRequested();
     void onRemoveAllRequested();
+    void onGenerateBeatMarkersRequested();
     void onSearchChanged();
     void onColorColumnToggled(bool checked);
     void onTextColumnToggled(bool checked);

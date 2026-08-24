@@ -18,3 +18,11 @@ add_executable(test_mix_transition_order
 target_include_directories(test_mix_transition_order PRIVATE ${CMAKE_SOURCE_DIR}/src)
 target_link_libraries(test_mix_transition_order PRIVATE Qt6::Core Qt6::Test PkgConfig::mlt++)
 add_test(NAME mix_transition_order COMMAND test_mix_transition_order)
+
+add_executable(test_marker_generator
+  test_marker_generator.cpp
+  ${CMAKE_SOURCE_DIR}/src/rhythm/markergenerator.cpp
+)
+target_include_directories(test_marker_generator PRIVATE ${CMAKE_SOURCE_DIR}/src)
+target_link_libraries(test_marker_generator PRIVATE Qt6::Core Qt6::Gui Qt6::Test PkgConfig::mlt++)
+add_test(NAME marker_generator COMMAND test_marker_generator)
