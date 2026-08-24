@@ -22,6 +22,7 @@ add_executable(shotcut WIN32 MACOSX_BUNDLE
   dialogs/alignmentarray.cpp dialogs/alignmentarray.h
   dialogs/addonfiltersdialog.cpp dialogs/addonfiltersdialog.h
   dialogs/addonmetadatahelpdialog.cpp dialogs/addonmetadatahelpdialog.h
+  dialogs/beatmarkersdialog.cpp dialogs/beatmarkersdialog.h
   dialogs/bitratedialog.h dialogs/bitratedialog.cpp
   dialogs/customprofiledialog.cpp dialogs/customprofiledialog.h
   dialogs/customprofiledialog.ui
@@ -63,6 +64,7 @@ add_executable(shotcut WIN32 MACOSX_BUNDLE
   docks/playlistdock.ui
   docks/recentdock.cpp docks/recentdock.h
   docks/recentdock.ui
+  docks/rhythmdock.cpp docks/rhythmdock.h
   docks/scopedock.cpp docks/scopedock.h
   docks/subtitlesdock.cpp docks/subtitlesdock.h
   docks/timelinedock.cpp docks/timelinedock.h
@@ -139,6 +141,12 @@ add_executable(shotcut WIN32 MACOSX_BUNDLE
   sharedframe.cpp sharedframe.h
   shotcut_mlt_properties.h
   transcoder.cpp transcoder.h
+  rhythm/beatgrid.cpp rhythm/beatgrid.h
+  rhythm/keyframegenerator.cpp rhythm/keyframegenerator.h
+  rhythm/markergenerator.cpp rhythm/markergenerator.h
+  rhythm/midisource.cpp rhythm/midisource.h
+  rhythm/pattern.cpp rhythm/pattern.h
+  rhythm/rhythmsource.cpp rhythm/rhythmsource.h
   screencapture/rectangleselector.cpp
   screencapture/rectangleselector.h
   screencapture/screencapture.cpp

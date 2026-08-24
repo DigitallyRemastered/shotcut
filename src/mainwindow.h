@@ -53,6 +53,7 @@ class AutoSaveFile;
 class QNetworkReply;
 class KeyframesDock;
 class MarkersDock;
+class RhythmDock;
 class NotesDock;
 class SubtitlesDock;
 class ScreenCapture;
@@ -223,6 +224,7 @@ private:
     QDateTime m_sourceUpdatedAt;
     QDateTime m_lastBackupDateTime;
     MarkersDock *m_markersDock;
+    RhythmDock *m_rhythmDock;
     NotesDock *m_notesDock;
     SubtitlesDock *m_subtitlesDock;
     std::unique_ptr<QWidget> m_producerWidget;

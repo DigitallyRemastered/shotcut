@@ -45,6 +45,7 @@
 #include "docks/markersdock.h"
 #include "docks/notesdock.h"
 #include "docks/playlistdock.h"
+#include "docks/rhythmdock.h"
 #include "docks/recentdock.h"
 #include "docks/subtitlesdock.h"
 #include "docks/timelinedock.h"
@@ -875,6 +876,16 @@ void MainWindow::setupAndConnectDocks()
     connect(ui->actionNotes, SIGNAL(triggered()), this, SLOT(onNotesDockTriggered()));
     connect(m_notesDock, SIGNAL(modified()), this, SLOT(onNoteModified()));
 
+    m_rhythmDock = new RhythmDock(this);
+    m_rhythmDock->hide();
+    ui->menuView->addAction(m_rhythmDock->toggleViewAction());
+    // Wire with the member directly rather than through MAIN: the singleton is
+    // still being constructed at this point.
+    connect(m_filterController,
+            &FilterController::currentFilterChanged,
+            m_rhythmDock,
+            &RhythmDock::onCurrentFilterChanged);
+
     m_subtitlesDock = new SubtitlesDock(this);
     m_subtitlesDock->hide();
     m_subtitlesDock->toggleViewAction()->setShortcut(QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_9));
@@ -935,6 +946,7 @@ void MainWindow::setupAndConnectDocks()
     addDockWidget(Qt::BottomDockWidgetArea, m_timelineDock);
     addDockWidget(Qt::BottomDockWidgetArea, m_keyframesDock);
     splitDockWidget(m_timelineDock, m_markersDock, Qt::Horizontal);
+    splitDockWidget(m_markersDock, m_rhythmDock, Qt::Horizontal);
     tabifyDockWidget(m_keyframesDock, m_timelineDock);
     m_recentDock->raise();
     resetDockCorners();
