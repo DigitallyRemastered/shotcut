@@ -61,3 +61,21 @@ add_executable(test_rhythm_source
 target_include_directories(test_rhythm_source PRIVATE ${CMAKE_SOURCE_DIR}/src)
 target_link_libraries(test_rhythm_source PRIVATE Qt6::Core Qt6::Test)
 add_test(NAME rhythm_source COMMAND test_rhythm_source)
+
+add_executable(test_note_map
+  test_note_map.cpp
+  ${CMAKE_SOURCE_DIR}/src/rhythm/notemap.cpp
+)
+target_include_directories(test_note_map PRIVATE ${CMAKE_SOURCE_DIR}/src)
+target_link_libraries(test_note_map PRIVATE Qt6::Core Qt6::Gui Qt6::Test)
+add_test(NAME note_map COMMAND test_note_map)
+
+add_executable(test_clip_placer
+  test_clip_placer.cpp
+  ${CMAKE_SOURCE_DIR}/src/rhythm/clipplacer.cpp
+  ${CMAKE_SOURCE_DIR}/src/rhythm/midisource.cpp
+  ${CMAKE_SOURCE_DIR}/src/rhythm/notemap.cpp
+)
+target_include_directories(test_clip_placer PRIVATE ${CMAKE_SOURCE_DIR}/src)
+target_link_libraries(test_clip_placer PRIVATE Qt6::Core Qt6::Gui Qt6::Test)
+add_test(NAME clip_placer COMMAND test_clip_placer)
