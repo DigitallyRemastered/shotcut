@@ -23,6 +23,11 @@
 #include "mltcontroller.h"
 #include "qmltypes/qmlfilter.h"
 #include "qmltypes/qmlmetadata.h"
+#include "commands/rhythmcommands.h"
+#include "mainwindow.h"
+#include "models/multitrackmodel.h"
+#include "docks/timelinedock.h"
+#include "rhythm/clipplacer.h"
 #include "rhythm/keyframegenerator.h"
 #include "settings.h"
 
@@ -181,10 +186,21 @@ void RhythmDock::buildUi()
 
     m_apply = new QPushButton(tr("Apply"));
     layout->addWidget(m_apply);
+
+    // --- Instrument -----------------------------------------------------
+    QGroupBox *instrument = new QGroupBox(tr("Instrument"));
+    QFormLayout *instrumentForm = new QFormLayout(instrument);
+    m_placeClips = new QPushButton(tr("Place Clips from Note Map..."));
+    m_placeClips->setToolTip(tr("Load a note map and place a struck-note clip for every "
+                                "note in the MIDI file above."));
+    instrumentForm->addRow(m_placeClips);
+    layout->addWidget(instrument);
+
     layout->addStretch(1);
 
     connect(m_midiBrowse, &QPushButton::clicked, this, &RhythmDock::onBrowseMidi);
     connect(m_apply, &QPushButton::clicked, this, &RhythmDock::onApply);
+    connect(m_placeClips, &QPushButton::clicked, this, &RhythmDock::onPlaceClips);
     for (auto *widget : {m_useBeats, m_useMidi})
         connect(widget, &QRadioButton::toggled, this, &RhythmDock::onInputsChanged);
     for (auto *widget : {m_bpm, m_offset})
@@ -371,4 +387,78 @@ void RhythmDock::onApply()
     const int written = KeyframeGenerator::apply(m_filter, request);
     LOG_INFO() << "wrote" << written << "keyframes to" << request.property;
     refreshSummary();
+}
+
+void RhythmDock::onPlaceClips()
+{
+    if (!m_midi.isValid()) {
+        QMessageBox::information(this,
+                                 tr("Rhythm"),
+                                 tr("Open a MIDI file first: the notes in it decide what "
+                                    "gets placed and when."));
+        return;
+    }
+
+    const QString path = QFileDialog::getOpenFileName(this,
+                                                      tr("Open Note Map"),
+                                                      Settings.openPath(),
+                                                      tr("Note maps (*.json)"));
+    if (path.isEmpty())
+        return;
+
+    QString error;
+    if (!m_noteMap.load(path, &error)) {
+        QMessageBox::warning(this, tr("Rhythm"), error);
+        return;
+    }
+
+    // A strike lasts as long as the source clip.
+    Mlt::Producer clip(MLT.profile(), qUtf8Printable(m_noteMap.sourceClip()));
+    if (!clip.is_valid()) {
+        QMessageBox::warning(this,
+                             tr("Rhythm"),
+                             tr("Unable to open the clip this note map refers to:\n%1")
+                                 .arg(m_noteMap.sourceClip()));
+        return;
+    }
+
+    ClipPlacer::Request request;
+    request.midi = &m_midi;
+    request.channel = m_midiChannel->count() ? m_midiChannel->currentData().toInt() : -1;
+    request.fps = MLT.profile().fps();
+    request.lengthFrames = timelineLength();
+    request.clipFrames = qMax(1, clip.get_length());
+
+    const auto plan = ClipPlacer::plan(m_noteMap, request);
+    if (plan.isEmpty()) {
+        QMessageBox::information(this,
+                                 tr("Rhythm"),
+                                 tr("Nothing to place. No note in the MIDI file appears in "
+                                    "this note map."));
+        return;
+    }
+
+    // Say what is about to happen before adding tracks to someone's project.
+    QString detail = tr("Place %1 clips across %2 track(s)?")
+                         .arg(plan.placements.size())
+                         .arg(plan.tracks().size());
+    if (!plan.unmappedNotes.isEmpty()) {
+        QStringList unmapped;
+        for (int note : plan.unmappedNotes)
+            unmapped << QString::number(note);
+        detail += QStringLiteral("\n\n")
+                  + tr("%1 note(s) are not in the map and will be skipped: %2")
+                        .arg(plan.unmappedNotes.size())
+                        .arg(unmapped.join(QStringLiteral(", ")));
+    }
+    if (plan.skippedOutOfRange > 0)
+        detail += QStringLiteral("\n") + tr("%1 note(s) fall past the end of the timeline.")
+                                              .arg(plan.skippedOutOfRange);
+
+    if (QMessageBox::question(this, tr("Place Clips"), detail) != QMessageBox::Yes)
+        return;
+
+    const int placed = Rhythm::placeClips(*MAIN.timelineDock()->model(), m_noteMap, plan, &error);
+    if (placed == 0 && !error.isEmpty())
+        QMessageBox::warning(this, tr("Rhythm"), error);
 }

@@ -6,6 +6,7 @@ add_executable(shotcut WIN32 MACOSX_BUNDLE
   autosavefile.cpp autosavefile.h
   commands/filtercommands.cpp commands/filtercommands.h
   commands/markercommands.cpp commands/markercommands.h
+  commands/rhythmcommands.cpp commands/rhythmcommands.h
   commands/playlistcommands.cpp commands/playlistcommands.h
   commands/subtitlecommands.cpp commands/subtitlecommands.h
   commands/timelinecommands.cpp commands/timelinecommands.h

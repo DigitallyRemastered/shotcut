@@ -19,6 +19,7 @@
 #define RHYTHMDOCK_H
 
 #include "rhythm/midisource.h"
+#include "rhythm/notemap.h"
 #include "rhythm/pattern.h"
 #include "rhythm/rhythmsource.h"
 
@@ -54,6 +55,7 @@ public slots:
 
 private slots:
     void onBrowseMidi();
+    void onPlaceClips();
     void onApply();
     void onInputsChanged();
 
@@ -97,6 +99,8 @@ private:
     QPushButton *m_apply{nullptr};
 
     MidiSource m_midi;
+    NoteMap m_noteMap;
+    QPushButton *m_placeClips{nullptr};
     QmlFilter *m_filter{nullptr};
     QmlMetadata *m_metadata{nullptr};
 };
