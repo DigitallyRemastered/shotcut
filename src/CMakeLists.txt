@@ -139,6 +139,7 @@ add_executable(shotcut WIN32 MACOSX_BUNDLE
   sharedframe.cpp sharedframe.h
   shotcut_mlt_properties.h
   transcoder.cpp transcoder.h
+  rhythm/midisource.cpp rhythm/midisource.h
   screencapture/rectangleselector.cpp
   screencapture/rectangleselector.h
   screencapture/screencapture.cpp

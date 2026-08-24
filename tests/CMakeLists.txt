@@ -18,3 +18,11 @@ add_executable(test_mix_transition_order
 target_include_directories(test_mix_transition_order PRIVATE ${CMAKE_SOURCE_DIR}/src)
 target_link_libraries(test_mix_transition_order PRIVATE Qt6::Core Qt6::Test PkgConfig::mlt++)
 add_test(NAME mix_transition_order COMMAND test_mix_transition_order)
+
+add_executable(test_midi_source
+  test_midi_source.cpp
+  ${CMAKE_SOURCE_DIR}/src/rhythm/midisource.cpp
+)
+target_include_directories(test_midi_source PRIVATE ${CMAKE_SOURCE_DIR}/src)
+target_link_libraries(test_midi_source PRIVATE Qt6::Core Qt6::Test)
+add_test(NAME midi_source COMMAND test_midi_source)
